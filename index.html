@@ -18,6 +18,7 @@
             --accent-gradient: linear-gradient(45deg, #5865f2, #a458f2);
             --shadow: 0 10px 30px rgba(0,0,0,0.3);
             --border-radius: 16px;
+            --transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -47,15 +48,11 @@
             flex: 0 0 300px;
             overflow-y: auto;
             position: relative;
-            /* Esconde la barra de scroll */
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
-        #missions-list-container::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, and Opera */
-        }
+        #missions-list-container::-webkit-scrollbar { display: none; }
 
-        /* Espacio de búfer para permitir que la primera y última tarjeta lleguen al centro */
         #missions-list-container::before,
         #missions-list-container::after {
             content: '';
@@ -63,7 +60,6 @@
             height: 220px;
         }
 
-        /* Máscara para el efecto de desvanecimiento superior e inferior */
         #missions-list-container {
              mask-image: linear-gradient(
                 to bottom,
@@ -72,27 +68,24 @@
                 black 75%,
                 transparent
             );
-            padding: 0 20px; /* Padding lateral para que las tarjetas no toquen los bordes */
+            padding: 0 20px;
         }
 
         .mission-card {
             padding: 20px;
-            margin-bottom: 15px; /* Espacio entre tarjetas */
+            margin-bottom: 15px;
             border-radius: var(--border-radius);
             cursor: pointer;
             overflow: hidden;
             border: 2px solid transparent;
-            /* Las tarjetas están en flujo normal, no son 'sticky' */
             position: relative; 
-
-            /* Estado por defecto: más pequeño y semi-transparente */
             transform: scale(0.9);
             opacity: 0.6;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: all 0.4s var(--transition-curve);
         }
 
         .mission-card.active {
-            transform: scale(1.1); /* La tarjeta activa es más grande */
+            transform: scale(1.1);
             opacity: 1;
             background: var(--accent-gradient);
             box-shadow: 0 8px 25px rgba(88, 101, 242, 0.4);
@@ -115,9 +108,7 @@
             transition: color 0.4s ease;
         }
 
-        .mission-card.active .mission-number {
-            color: rgba(255,255,255,0.2);
-        }
+        .mission-card.active .mission-number { color: rgba(255,255,255,0.2); }
         
         .mission-title {
             position: relative;
@@ -128,28 +119,94 @@
             transition: color 0.4s ease;
         }
 
-        .mission-card.active .mission-title {
-            color: white;
-        }
+        .mission-card.active .mission-title { color: white; }
 
+        /* --- Panel Derecho (Detalles y Chat) --- */
         #mission-details {
             flex: 1;
-            padding: 30px 40px; 
             background-color: rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            padding: 30px 40px; /* Padding general para el panel */
+        }
+
+        /* --- Contenedor de los detalles de la misión --- */
+        #mission-details-content {
+            position: absolute;
+            top: 30px; bottom: 30px; left: 40px; right: 40px;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            opacity: 1;
+            transform: translateX(0);
+            transition: opacity 0.5s var(--transition-curve), transform 0.5s var(--transition-curve);
+        }
+        #mission-details-content.hidden {
+            opacity: 0;
+            transform: translateX(-30px);
+            pointer-events: none;
         }
 
-        .details-content {
-            animation: fadeIn 0.6s ease-in-out;
+        /* --- Contenedor del Chatbot --- */
+        #chatbot-container {
+            position: absolute;
+            top: 15px; bottom: 15px; left: 15px; right: 15px;
+            opacity: 0;
+            transform: translateX(30px);
+            pointer-events: none;
+            transition: opacity 0.5s var(--transition-curve), transform 0.5s var(--transition-curve), box-shadow 0.5s var(--transition-curve);
+            display: flex;
+            flex-direction: column;
+            border-radius: var(--border-radius);
+            background-color: var(--surface-color); /* Fondo para que se vea el glow */
+        }
+        #chatbot-container.visible {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+            box-shadow: 0 0 25px rgba(88, 101, 242, 0.7); /* El efecto NEÓN */
+        }
+
+        .chatbot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background-color: rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+
+        .chatbot-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .back-button {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        #chatbot-container iframe {
+            flex-grow: 1;
+            border: none;
+            border-bottom-left-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         #mission-details h2 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
         #mission-details .hook { font-size: 16px; color: var(--text-muted); margin-bottom: 24px; }
         #mission-details h3 { font-size: 16px; font-weight: 600; color: var(--primary-color); margin-bottom: 12px; }
@@ -175,6 +232,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            align-self: flex-start;
         }
 
         .ada-button:hover {
@@ -190,14 +248,12 @@
              <!-- Las tarjetas de misión se insertarán aquí -->
         </div>
         <div id="mission-details">
-             <!-- Los detalles de la misión seleccionada se mostrarán aquí -->
+             <!-- Los detalles de la misión y el chatbot se mostrarán aquí -->
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // El JavaScript no necesita cambios, ya que la lógica del Observer
-            // sigue siendo correcta. Todo el ajuste es a nivel de CSS.
             const missionsData = [
                 { title: 'Misión 1: Helio', hook: 'Un grupo de WhatsApp, un servidor de Discord, un foro... ¿Te has preguntado qué se necesita para que no se convierta en un caos?', learnings: ['Moderar conversaciones para que todos se sientan seguros y respetados.', 'Aprender a calmar los ánimos y resolver conflictos como un pro.', 'Ser un modelo de comportamiento digital positivo para los demás.'] },
                 { title: 'Misión 2: Neón', hook: 'Ser el "admin" es más que solo banear gente. ¿Cómo creas un espacio donde todos quieran estar y aportar? Vamos a construir las bases.', learnings: ['Establecer las reglas para una cultura de respeto e inclusión.', 'Definir tu papel como moderador ético y justo.', 'Diseñar tu propia comunidad digital con un propósito claro y herramientas adecuadas.'] },
@@ -217,7 +273,6 @@
                 { title: 'Misión 16: Uranio', hook: 'Si la IA actual ya es sorprendente, ¿qué pasará con la IA cuántica? Asómate a las tecnologías del futuro y sus dilemas éticos.', learnings: ['Explorar las fronteras de la tecnología, como la computación cuántica.', 'Analizar las implicaciones éticas de un desarrollo tecnológico exponencial.', 'Reflexionar sobre los límites que debemos ponerle a sistemas que quizás no comprendamos del todo.'] }
             ];
 
-            const adaLink = "https://chatgpt.com/g/g-68896c6ddc908191adda34be9eb9f427-ada-prepa3";
             const listContainer = document.getElementById('missions-list-container');
             const detailsPanel = document.getElementById('mission-details');
             let missionCards = [];
@@ -235,18 +290,39 @@
 
             function updateDetails(index) {
                 const mission = missionsData[index];
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'details-content';
-                contentDiv.innerHTML = `
-                    <h2>${mission.title}</h2>
-                    <p class="hook">${mission.hook}</p>
-                    <h3>En esta Misión, vas a:</h3>
-                    <ul>${mission.learnings.map(item => `<li>${item}</li>`).join('')}</ul>
-                    <a href="${adaLink}" target="_blank" class="ada-button">Iniciar Misión con ADA</a>
+                
+                detailsPanel.innerHTML = `
+                    <div id="mission-details-content">
+                        <h2>${mission.title}</h2>
+                        <p class="hook">${mission.hook}</p>
+                        <h3>En esta Misión, vas a:</h3>
+                        <ul>${mission.learnings.map(item => `<li>${item}</li>`).join('')}</ul>
+                        <button class="ada-button">Iniciar Misión con ADA</button>
+                    </div>
+                    
+                    <div id="chatbot-container">
+                        <div class="chatbot-header">
+                            <h3>${mission.title}</h3>
+                            <button class="back-button">← Volver</button>
+                        </div>
+                        <iframe src="https://www.chatbase.co/chatbot-iframe/0ofpu9ayUgj1dwIL9cxJ1"></iframe>
+                    </div>
                 `;
-                // Reemplazar el contenido para reiniciar la animación
-                detailsPanel.innerHTML = ''; 
-                detailsPanel.appendChild(contentDiv);
+
+                const missionContent = detailsPanel.querySelector('#mission-details-content');
+                const chatbotContainer = detailsPanel.querySelector('#chatbot-container');
+                const startButton = detailsPanel.querySelector('.ada-button');
+                const backButton = detailsPanel.querySelector('.back-button');
+
+                startButton.addEventListener('click', () => {
+                    missionContent.classList.add('hidden');
+                    chatbotContainer.classList.add('visible');
+                });
+
+                backButton.addEventListener('click', () => {
+                    missionContent.classList.remove('hidden');
+                    chatbotContainer.classList.remove('visible');
+                });
             }
 
             function updateActiveCard(index) {
